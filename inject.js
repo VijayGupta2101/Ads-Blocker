@@ -1,6 +1,6 @@
 // YouTube Shield - Page Context Injection (MAIN World)
 
-(function() {
+(function () {
   // Helper to check if adblock is enabled by reading document attribute set by content.js
   const isEnabled = () => {
     const attr = document.documentElement.getAttribute("yt-shield-enabled");
@@ -74,7 +74,7 @@
           response = cleanPlayerResponse(response);
           val.config.args.raw_player_response = JSON.stringify(response);
           window.dispatchEvent(new CustomEvent("yt-shield-ad-intercepted"));
-        } catch (e) {}
+        } catch (e) { }
       }
       rawYtPlayer = val;
     },
@@ -83,7 +83,7 @@
 
   // Intercept window.fetch to capture /youtubei/v1/player calls
   const originalFetch = window.fetch;
-  window.fetch = async function(...args) {
+  window.fetch = async function (...args) {
     const requestUrl = args[0];
     const urlStr = typeof requestUrl === "string" ? requestUrl : (requestUrl instanceof Request ? requestUrl.url : "");
 
@@ -113,22 +113,22 @@
   // Intercept XMLHttpRequest to capture any XHR player config calls
   const originalOpen = XMLHttpRequest.prototype.open;
   const originalSend = XMLHttpRequest.prototype.send;
-  
-  XMLHttpRequest.prototype.open = function(method, url) {
+
+  XMLHttpRequest.prototype.open = function (method, url) {
     this._url = typeof url === 'string' ? url : (url ? url.toString() : '');
     return originalOpen.apply(this, arguments);
   };
-  
-  XMLHttpRequest.prototype.send = function() {
+
+  XMLHttpRequest.prototype.send = function () {
     if (isEnabled() && this._url && this._url.includes("/youtubei/v1/player")) {
       const originalOnreadystatechange = this.onreadystatechange;
-      this.onreadystatechange = function() {
+      this.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
           try {
             let responseText = this.responseText;
             let json = JSON.parse(responseText);
             json = cleanPlayerResponse(json);
-            
+
             // Override response properties
             Object.defineProperty(this, "responseText", {
               get() { return JSON.stringify(json); },
@@ -138,7 +138,7 @@
               get() { return JSON.stringify(json); },
               configurable: true
             });
-            
+
             window.dispatchEvent(new CustomEvent("yt-shield-ad-intercepted"));
           } catch (e) {
             console.warn("YouTube Shield: XHR parsing failed.", e);

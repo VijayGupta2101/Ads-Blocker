@@ -70,11 +70,11 @@ function loadSettings() {
   try {
     chrome.storage.local.get(["adblock_enabled", "video_skip_enabled", "layout_hide_enabled"], (result) => {
       if (chrome.runtime.lastError) return;
-      
+
       settings.adblock_enabled = result.adblock_enabled !== false;
       settings.video_skip_enabled = result.video_skip_enabled !== false;
       settings.layout_hide_enabled = result.layout_hide_enabled !== false;
-      
+
       updateDOMAttribute();
       injectAdStyles();
     });
@@ -100,7 +100,7 @@ try {
         settings.layout_hide_enabled = changes.layout_hide_enabled.newValue;
         changed = true;
       }
-      
+
       if (changed) {
         updateDOMAttribute();
         injectAdStyles();
@@ -146,8 +146,8 @@ function checkVideoAd() {
 
   // Detect if an ad is showing
   const isAdPlaying = !!(
-    document.querySelector(".ad-showing") || 
-    document.querySelector(".ad-interrupting") || 
+    document.querySelector(".ad-showing") ||
+    document.querySelector(".ad-interrupting") ||
     document.querySelector(".ytp-ad-player-overlay") ||
     document.querySelector(".ytp-ad-message-container")
   );
@@ -155,7 +155,7 @@ function checkVideoAd() {
   if (isAdPlaying && settings.video_skip_enabled) {
     if (!wasAdPlaying) {
       wasAdPlaying = true;
-      
+
       // Store original player settings before speeding up (making sure we don't store 16x)
       if (video.playbackRate !== 16.0) {
         originalSpeed = video.playbackRate;
@@ -163,7 +163,7 @@ function checkVideoAd() {
       originalMuted = video.muted;
       originalVolume = video.volume;
       adDuration = isNaN(video.duration) || !isFinite(video.duration) ? 15 : video.duration;
-      
+
       console.log(`YouTube Shield: Ad detected! Duration: ${adDuration}s. Speeding up & muting.`);
     }
 
@@ -193,12 +193,12 @@ function checkVideoAd() {
     // Ad has finished or video_skip is disabled
     if (wasAdPlaying) {
       restorePlayerState();
-      
+
       // Update statistics in background storage
       try {
-        chrome.runtime.sendMessage({ 
-          action: "adBlocked", 
-          duration: Math.round(adDuration) 
+        chrome.runtime.sendMessage({
+          action: "adBlocked",
+          duration: Math.round(adDuration)
         }, (response) => {
           if (chrome.runtime.lastError) {
             // Context invalidated or background inactive, ignore
@@ -211,7 +211,7 @@ function checkVideoAd() {
       } catch (e) {
         console.warn("YouTube Shield: Message sending failed (likely extension reload):", e);
       }
-      
+
       wasAdPlaying = false;
     }
   }
@@ -259,8 +259,8 @@ window.addEventListener("unload", () => {
 // Listen for interception events from inject.js running in MAIN world
 window.addEventListener("yt-shield-ad-intercepted", () => {
   try {
-    chrome.runtime.sendMessage({ 
-      action: "adBlocked", 
+    chrome.runtime.sendMessage({
+      action: "adBlocked",
       duration: 15 // average estimated ad duration saved per blocked ad request
     }, (response) => {
       if (chrome.runtime.lastError) return;

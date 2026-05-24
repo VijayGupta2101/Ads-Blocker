@@ -5,10 +5,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const toggleAdblock = document.getElementById("toggle-adblock");
   const toggleVideoSkip = document.getElementById("toggle-video-skip");
   const toggleLayoutHide = document.getElementById("toggle-layout-hide");
-  
+
   const statAdsCount = document.getElementById("stat-ads-count");
   const statTimeSaved = document.getElementById("stat-time-saved");
-  
+
   const statusBadge = document.getElementById("status-badge");
   const statusLbl = statusBadge.querySelector(".status-lbl");
 
@@ -16,17 +16,17 @@ document.addEventListener("DOMContentLoaded", () => {
   function formatTimeSaved(seconds) {
     if (!seconds || seconds <= 0) return "0s";
     if (seconds < 60) return `${seconds}s`;
-    
+
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    
+
     if (minutes < 60) {
       return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
     }
-    
+
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
-    
+
     return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
   }
 
@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
       toggleAdblock.checked = result.adblock_enabled !== false;
       toggleVideoSkip.checked = result.video_skip_enabled !== false;
       toggleLayoutHide.checked = result.layout_hide_enabled !== false;
-      
+
       // Update badge UI
       updateStatusUI(toggleAdblock.checked);
 
